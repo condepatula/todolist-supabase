@@ -10,21 +10,21 @@ import {
 import { useFocusTrap } from "@mantine/hooks";
 import { useTodolist } from "../context/todolist-context";
 
-export const FormTodo = ({ opened, setOpened, task }) => {
+export const FormTodo = () => {
   const theme = useMantineTheme();
   const focusTrapRef = useFocusTrap();
   const [input, setInput] = useState("");
-  const { updateTodo } = useTodolist();
+  const { formOpened, payloadAtForm, openForm, updateTodo } = useTodolist();
 
   useEffect(() => {
-    task ? setInput(task.task) : setInput("");
-  }, [task]);
+    payloadAtForm ? setInput(payloadAtForm.task) : setInput("");
+  }, [payloadAtForm]);
 
   return (
     <Drawer
-      opened={opened}
-      onClose={() => setOpened(false)}
-      title={task ? "Edit Task" : "Add Task"}
+      opened={formOpened}
+      onClose={() => openForm(false)}
+      title={payloadAtForm ? "Edit Task" : "Add Task"}
       padding="xl"
       size="sm"
       position="bottom"
@@ -34,8 +34,8 @@ export const FormTodo = ({ opened, setOpened, task }) => {
           ref={focusTrapRef}
           onSubmit={(e) => {
             e.preventDefault();
-            updateTodo(task.id, { ...task, task: input });
-            setOpened(false);
+            updateTodo(payloadAtForm.id, { ...payloadAtForm, task: input });
+            openForm(false);
           }}
         >
           <TextInput
@@ -49,7 +49,7 @@ export const FormTodo = ({ opened, setOpened, task }) => {
           />
           <Group position="right" mt="md">
             <Button type="submit" sx={{ width: "100%" }} color="teal">
-              Add
+              {payloadAtForm ? "Update" : "Add"}
             </Button>
           </Group>
         </form>

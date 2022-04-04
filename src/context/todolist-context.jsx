@@ -7,6 +7,9 @@ export function TodolistProvider(props) {
   const [todos, setTodos] = useState(data);
   const [todosFiltered, setTodosFiltered] = useState([]);
   const [filter, setFilter] = useState("ALL");
+  const [formOpened, openForm] = useState(false);
+  const [payloadAtForm, setPayloadAtForm] = useState({});
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
     setTodosFiltered(
@@ -33,8 +36,14 @@ export function TodolistProvider(props) {
   const value = {
     todosFiltered,
     filter,
+    formOpened,
+    payloadAtForm,
+    loggedIn,
     setFilter,
     updateTodo,
+    openForm,
+    setPayloadAtForm,
+    setLoggedIn,
   };
 
   return <TodolistContext.Provider value={value} {...props} />;

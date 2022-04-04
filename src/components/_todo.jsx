@@ -9,10 +9,10 @@ import {
 import { Trash, Edit } from "tabler-icons-react";
 import { useTodolist } from "../context/todolist-context";
 
-export const Todo = ({ todo, setOpened, setTask }) => {
+export const Todo = ({ todo }) => {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
-  const { updateTodo } = useTodolist();
+  const { openForm, setPayloadAtForm, updateTodo } = useTodolist();
 
   return (
     <>
@@ -27,14 +27,28 @@ export const Todo = ({ todo, setOpened, setTask }) => {
         <Group position="right">
           <ActionIcon
             onClick={() => {
-              setOpened(true);
-              setTask(todo);
+              openForm(true);
+              setPayloadAtForm(todo);
             }}
             variant="hover"
+            mr={15}
+            sx={(theme) => ({
+              "&:hover": {
+                color: theme.colors.blue[2],
+              },
+            })}
           >
             <Edit size={16} />
           </ActionIcon>
-          <ActionIcon onClick={() => console.log("delete")} variant="hover">
+          <ActionIcon
+            onClick={() => console.log("delete")}
+            variant="hover"
+            sx={(theme) => ({
+              "&:hover": {
+                color: theme.colors.red[6],
+              },
+            })}
+          >
             <Trash size={16} />
           </ActionIcon>
         </Group>
