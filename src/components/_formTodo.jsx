@@ -1,20 +1,13 @@
 import { useState, useEffect } from "react";
-import {
-  Drawer,
-  Box,
-  TextInput,
-  Group,
-  Button,
-  useMantineTheme,
-} from "@mantine/core";
+import { Drawer, Box, TextInput, Group, Button } from "@mantine/core";
 import { useFocusTrap } from "@mantine/hooks";
 import { useTodolist } from "../context/todolist-context";
 
 export const FormTodo = () => {
-  const theme = useMantineTheme();
   const focusTrapRef = useFocusTrap();
   const [input, setInput] = useState("");
-  const { formOpened, payloadAtForm, openForm, updateTodo } = useTodolist();
+  const { formOpened, payloadAtForm, openForm, addTodo, updateTodo } =
+    useTodolist();
 
   useEffect(() => {
     payloadAtForm ? setInput(payloadAtForm.task) : setInput("");
@@ -34,7 +27,12 @@ export const FormTodo = () => {
           ref={focusTrapRef}
           onSubmit={(e) => {
             e.preventDefault();
-            updateTodo(payloadAtForm.id, { ...payloadAtForm, task: input });
+            if (payloadAtForm) {
+              updateTodo(payloadAtForm.id, { ...payloadAtForm, task: input });
+            } else {
+              addTodo({ task: input, done: false });
+              setInput("");
+            }
             openForm(false);
           }}
         >

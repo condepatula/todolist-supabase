@@ -1,4 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
+import { showNotification } from "@mantine/notifications";
+import { Check } from "tabler-icons-react";
 import { data } from "../db";
 
 const TodolistContext = createContext();
@@ -25,11 +27,39 @@ export function TodolistProvider(props) {
     );
   }, [todos, filter]);
 
+  const addTodo = (todo) => {
+    setTodos((prev) => [...prev, { ...todo, id: todos.length + 1 }]);
+    showNotification({
+      title: "To Do List",
+      message: "To Do was added!",
+      icon: <Check />,
+      color: "teal",
+    });
+  };
+
   const updateTodo = (id, data) => {
     setTodos((prev) => {
       return prev.map((todo) => {
         return todo.id === id ? data : todo;
       });
+    });
+    showNotification({
+      title: "To Do List",
+      message: "To Do was updated!",
+      icon: <Check />,
+      color: "teal",
+    });
+  };
+
+  const deleteTodo = (id) => {
+    setTodos((prev) => {
+      return prev.filter((todo) => todo.id !== id);
+    });
+    showNotification({
+      title: "To Do List",
+      message: "To Do was deleted!",
+      icon: <Check />,
+      color: "teal",
     });
   };
 
@@ -40,7 +70,9 @@ export function TodolistProvider(props) {
     payloadAtForm,
     loggedIn,
     setFilter,
+    addTodo,
     updateTodo,
+    deleteTodo,
     openForm,
     setPayloadAtForm,
     setLoggedIn,

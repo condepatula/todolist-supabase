@@ -12,7 +12,7 @@ import { useTodolist } from "../context/todolist-context";
 export const Todo = ({ todo }) => {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
-  const { openForm, setPayloadAtForm, updateTodo } = useTodolist();
+  const { openForm, setPayloadAtForm, updateTodo, deleteTodo } = useTodolist();
 
   return (
     <>
@@ -41,7 +41,7 @@ export const Todo = ({ todo }) => {
             <Edit size={16} />
           </ActionIcon>
           <ActionIcon
-            onClick={() => console.log("delete")}
+            onClick={() => deleteTodo(todo.id)}
             variant="hover"
             sx={(theme) => ({
               "&:hover": {
