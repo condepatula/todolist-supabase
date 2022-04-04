@@ -5,6 +5,7 @@
   "dependencies": {
     "@mantine/form": "^4.1.0",
     "@mantine/notifications": "^4.1.2",
+    "@supabase/supabase-js": "^1.33.3",
     "@testing-library/jest-dom": "^5.16.3",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",

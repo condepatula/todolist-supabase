@@ -25,7 +25,7 @@ export const Actions = () => {
           {colorScheme === "dark" ? <Sun size={16} /> : <MoonStars size={16} />}
         </ActionIcon>
       </Tooltip>
-      <Tooltip label="Add To Do" withArrow exitTransitionDuration={1000}>
+      <Tooltip label="Add To Do" withArrow>
         <ActionIcon
           onClick={() => {
             openForm(true);
