@@ -56,7 +56,10 @@ export function TodolistProvider(props) {
   }, [todos, filter]);
 
   const fetchTodos = async () => {
-    const { data } = await supabase.from("todos").select();
+    const { data } = await supabase
+      .from("todos")
+      .select()
+      .order("id", { ascending: false });
     setTodos(data);
   };
 
