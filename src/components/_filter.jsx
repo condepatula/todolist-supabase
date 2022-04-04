@@ -5,7 +5,7 @@ export const Filter = () => {
   const { filter, setFilter, todosFiltered } = useTodolist();
 
   return (
-    <Box pb={20}>
+    <Box pb={20} pt={20}>
       <RadioGroup
         label="Select to-do list status"
         description={`${todosFiltered.length} To do list found`}

@@ -53,6 +53,7 @@ export const Todo = ({ todo }) => {
               variant="hover"
               mr={15}
               sx={(theme) => ({
+                color: theme.colors.gray[6],
                 "&:hover": {
                   color: theme.colors.blue[2],
                 },
@@ -64,6 +65,7 @@ export const Todo = ({ todo }) => {
               onClick={() => deleteTodo(todo.id)}
               variant="hover"
               sx={(theme) => ({
+                color: theme.colors.gray[6],
                 "&:hover": {
                   color: theme.colors.red[6],
                 },
