@@ -2,7 +2,6 @@ import { createContext, useState, useEffect, useContext } from "react";
 import { showNotification } from "@mantine/notifications";
 import { Check } from "tabler-icons-react";
 import { supabase } from "../api/client";
-//import { data } from "../db";
 
 const TodolistContext = createContext();
 
@@ -13,33 +12,99 @@ export function TodolistProvider(props) {
   const [formOpened, openForm] = useState(false);
   const [payloadAtForm, setPayloadAtForm] = useState({});
   const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const todolistSubscription = supabase
-      .from("todos")
-      .on("INSERT", (_) => {
-        fetchTodos();
-      })
-      .on("UPDATE", (_) => {
-        fetchTodos();
-      })
-      .on("DELETE", (_) => {
-        fetchTodos();
-      })
-      .subscribe();
+    const fetchTodos = async () => {
+      if (user) {
+        const { data } = await supabase
+          .from("todos")
+          .select()
+          .eq("user_id", user.id)
+          .order("id", { ascending: false });
+        setTodos(data);
+      }
+    };
+
+    fetchTodos();
+  }, [user]);
+
+  useEffect(() => {
+    const user = supabase.auth.user();
+    if (user) {
+      setLoggedIn(true);
+      getUserProfile(user);
+    }
+
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        setTodos([]);
+        setTodosFiltered([]);
+        getUserProfile(session.user);
+        setLoggedIn(true);
+      }
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+        setLoggedIn(false);
+      }
+    });
+
+    return () => data.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchTodos = async () => {
+      if (user) {
+        const { data } = await supabase
+          .from("todos")
+          .select()
+          .eq("user_id", user.id)
+          .order("id", { ascending: false });
+        setTodos(data);
+      }
+    };
+
+    let todolistSubscription;
+
+    if (user) {
+      //console.log("subscribing....");
+      todolistSubscription = supabase
+        .from("todos")
+        .on("INSERT", (_) => {
+          fetchTodos();
+        })
+        .on("UPDATE", (_) => {
+          console.log("updating...");
+          fetchTodos();
+        })
+        .on("DELETE", (_) => {
+          fetchTodos();
+        })
+        .subscribe();
+
+      console.log("Subscribing", todolistSubscription);
+    }
 
     async function removeTodolistSubscription() {
+      //console.log("onsubscribe...");
       await supabase.removeSubscription(todolistSubscription);
     }
 
     return () => {
-      removeTodolistSubscription();
+      //console.log("User", user);
+      //console.log("Onsubscribing 1", todolistSubscription);
+      if (todolistSubscription !== undefined) {
+        console.log("Removing", todolistSubscription);
+        removeTodolistSubscription();
+      }
+      //if (!user && todolistSubscription === "undefined") {
+      /*if (todolistSubscription !== "undefined") {
+        console.log("Onsubscribing 2", todolistSubscription);
+        removeTodolistSubscription();
+      }*/
+      //}
     };
-  }, []);
-
-  useEffect(() => {
-    fetchTodos();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     setTodosFiltered(
@@ -55,17 +120,12 @@ export function TodolistProvider(props) {
     );
   }, [todos, filter]);
 
-  const fetchTodos = async () => {
-    const { data } = await supabase
-      .from("todos")
-      .select()
-      .order("id", { ascending: false });
-    setTodos(data);
-  };
-
   const addTodo = async (todo) => {
-    //setTodos((prev) => [...prev, { ...todo, id: todos.length + 1 }]);
-    const { error } = await supabase.from("todos").insert([todo]).single();
+    const { error } = await supabase
+      .from("todos")
+      .insert([{ ...todo, user_id: user.id }])
+      .single();
+
     if (!error) {
       showNotification({
         title: "To Do List",
@@ -77,11 +137,6 @@ export function TodolistProvider(props) {
   };
 
   const updateTodo = async (id, data) => {
-    /*setTodos((prev) => {
-      return prev.map((todo) => {
-        return todo.id === id ? data : todo;
-      });
-    });*/
     const { error } = await supabase.from("todos").update(data).match({ id });
 
     if (!error) {
@@ -95,9 +150,6 @@ export function TodolistProvider(props) {
   };
 
   const deleteTodo = async (id) => {
-    /*setTodos((prev) => {
-      return prev.filter((todo) => todo.id !== id);
-    });*/
     const { error } = await supabase.from("todos").delete().match({ id });
 
     if (!error) {
@@ -110,12 +162,27 @@ export function TodolistProvider(props) {
     }
   };
 
+  const getUserProfile = async (user) => {
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select()
+        .eq("id", user.id)
+        .single();
+
+      setUser({ id: user.id, name: data.username, email: user.email });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const value = {
     todosFiltered,
     filter,
     formOpened,
     payloadAtForm,
     loggedIn,
+    user,
     setFilter,
     addTodo,
     updateTodo,
@@ -123,6 +190,7 @@ export function TodolistProvider(props) {
     openForm,
     setPayloadAtForm,
     setLoggedIn,
+    setUser,
   };
 
   return <TodolistContext.Provider value={value} {...props} />;

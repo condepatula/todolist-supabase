@@ -13,7 +13,9 @@ export const TodoList = () => {
       <Center mt={20}>
         <Box sx={{ textAlign: "center" }} mt={50}>
           <Image src={logo} width={200} />
-          <Text size="sm">No data found...</Text>
+          <Text size="sm" mt={20}>
+            No data found...
+          </Text>
         </Box>
       </Center>
     );

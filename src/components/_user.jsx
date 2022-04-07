@@ -15,9 +15,24 @@ import {
   ChevronRight,
   ChevronLeft,
 } from "tabler-icons-react";
+import { supabase } from "../api/client";
+import { useNavigate } from "react-router-dom";
+import { useTodolist } from "../context/todolist-context";
 
 export const User = ({ setLoggedIn }) => {
   const theme = useMantineTheme();
+  const { user } = useTodolist();
+  const navigate = useNavigate();
+
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const UserButton = forwardRef(
     ({ image, name, email, icon, ...others }, ref) => (
@@ -78,8 +93,8 @@ export const User = ({ setLoggedIn }) => {
         control={
           <UserButton
             image="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-            name="Miguel Angel Rojas"
-            email="lutormig@gmail.com"
+            name={user && user.name}
+            email={user && user.email}
           />
         }
       >
@@ -89,10 +104,7 @@ export const User = ({ setLoggedIn }) => {
         >
           Perfil
         </Menu.Item>
-        <Menu.Item
-          icon={<Logout size={16} />}
-          onClick={() => setLoggedIn((prev) => !prev)}
-        >
+        <Menu.Item icon={<Logout size={16} />} onClick={() => logout()}>
           Logout
         </Menu.Item>
       </Menu>

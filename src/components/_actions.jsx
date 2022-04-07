@@ -39,10 +39,7 @@ export const Actions = () => {
       </Tooltip>
       {!loggedIn ? (
         <Tooltip label="Login" withArrow>
-          <ActionIcon
-            onClick={() => setLoggedIn((prev) => !prev)}
-            variant="default"
-          >
+          <ActionIcon onClick={() => console.log("login")} variant="default">
             <Login />
           </ActionIcon>
         </Tooltip>

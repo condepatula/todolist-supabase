@@ -20,10 +20,7 @@ export const Header = () => {
         position="apart"
       >
         <Logo colorScheme={colorScheme} />
-        <Actions
-          toggleColorScheme={toggleColorScheme}
-          colorScheme={colorScheme}
-        />
+        <Actions />
       </Group>
     </HeaderMan>
   );
