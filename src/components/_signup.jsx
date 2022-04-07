@@ -7,8 +7,11 @@ import {
   Image,
   TextInput,
   PasswordInput,
+  useMantineTheme,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useFocusTrap } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +21,9 @@ import { Check, X, EyeCheck, EyeOff } from "tabler-icons-react";
 import signupLogo from "../assets/img/signup.png";
 
 export const Signup = () => {
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
+  const focusTrapRef = useFocusTrap();
   const navigate = useNavigate();
   const { setLoggedIn, setUser } = useTodolist();
   const [loading, setLoading] = useState(false);
@@ -88,10 +94,18 @@ export const Signup = () => {
           Sign up
         </Text>
       </Group>
-      <Divider mb="xl" mt="sm" />
+      <Divider
+        mb="xl"
+        mt="sm"
+        sx={{ borderColor: colorScheme === "dark" ? "" : theme.colors.gray[2] }}
+      />
       <Box sx={{ maxWidth: "500px", margin: "auto" }} pl={10} pr={10}>
-        <form onSubmit={form.onSubmit((values) => signUp(values))}>
+        <form
+          ref={focusTrapRef}
+          onSubmit={form.onSubmit((values) => signUp(values))}
+        >
           <TextInput
+            data-autofocus
             required
             description="Username must be 10 or more characters"
             label="Username"

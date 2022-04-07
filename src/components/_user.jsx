@@ -19,7 +19,7 @@ import { supabase } from "../api/client";
 import { useNavigate } from "react-router-dom";
 import { useTodolist } from "../context/todolist-context";
 
-export const User = ({ setLoggedIn }) => {
+export const User = () => {
   const theme = useMantineTheme();
   const { user } = useTodolist();
   const navigate = useNavigate();

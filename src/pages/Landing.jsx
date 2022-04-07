@@ -27,12 +27,12 @@ export const Landing = () => {
         </Group>
         <Image src={logo} width={matches ? 500 : 300} />
         <Group position="center" mt={20} spacing={1}>
-          <Text size={matches ? "md" : "xs"}>
+          <Text size={matches ? "md" : "sm"}>
             If you already have an account
           </Text>
           <Link to="/login">
             <Button
-              size={matches ? "md" : "xs"}
+              size={matches ? "md" : "sm"}
               variant="subtle"
               compact
               color="teal"
@@ -40,10 +40,10 @@ export const Landing = () => {
               Login
             </Button>
           </Link>
-          <Text size={matches ? "md" : "xs"}>or if you are not registered</Text>
+          <Text size={matches ? "md" : "sm"}>or if you are not registered</Text>
           <Link to="/signup">
             <Button
-              size={matches ? "md" : "xs"}
+              size={matches ? "md" : "sm"}
               variant="subtle"
               compact
               color="indigo"

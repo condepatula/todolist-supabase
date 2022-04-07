@@ -19,9 +19,9 @@ export const Todo = ({ todo }) => {
 
   return (
     <>
-      <Grid mt={5} mb={5}>
-        <Grid.Col md={6} lg={10}>
-          <Box sx={{ display: "flex", gap: "10px" }}>
+      <Grid mt="sm" mb="sm" sx={{ alignItems: "center" }}>
+        <Grid.Col span={6}>
+          <Box sx={{ display: "flex" }}>
             <Checkbox
               checked={todo.done}
               size="xs"
@@ -37,13 +37,14 @@ export const Todo = ({ todo }) => {
                 minWidth: "0",
                 padding: ".5em",
                 wordWrap: "break-word",
+                textDecoration: todo.done ? "line-through" : "",
               }}
             >
               {todo.task}
             </Text>
           </Box>
         </Grid.Col>
-        <Grid.Col md={6} lg={2}>
+        <Grid.Col span={6}>
           <Group position="right">
             <ActionIcon
               onClick={() => {
