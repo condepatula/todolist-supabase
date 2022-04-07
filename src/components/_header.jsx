@@ -7,7 +7,7 @@ import { Actions } from "./_actions";
 import { Logo } from "./_logo";
 
 export const Header = () => {
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const { colorScheme } = useMantineColorScheme();
 
   return (
     <HeaderMan height={48} p="xs">
