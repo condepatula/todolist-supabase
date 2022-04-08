@@ -7,7 +7,6 @@ import {
   Divider,
   Image,
   TextInput,
-  PasswordInput,
   useMantineTheme,
   useMantineColorScheme,
   Avatar,
@@ -16,9 +15,6 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useFocusTrap } from "@mantine/hooks";
-import { showNotification } from "@mantine/notifications";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../api/client";
 import { useTodolist } from "../context/todolist-context";
 import { Camera } from "tabler-icons-react";
@@ -28,8 +24,6 @@ export const Profile = () => {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
   const focusTrapRef = useFocusTrap();
-  const [loading, setLoading] = useState(false);
-  const [avatarUri, setAvatarUri] = useState(null);
   const { user, getUserProfile } = useTodolist();
 
   const form = useForm({
@@ -49,7 +43,7 @@ export const Profile = () => {
       );
       form.setFieldValue("email", user.email);
     }
-  }, [user]);
+  }, [user, form]);
 
   const updateProfile = async (payload) => {
     console.log("Payload", payload);
@@ -184,15 +178,8 @@ export const Profile = () => {
             {...form.getInputProps("email")}
           />
 
-          <Button
-            fullWidth
-            mt={30}
-            color="teal"
-            size="md"
-            type="submit"
-            loading={loading}
-          >
-            {loading ? "Updating..." : "Edit"}
+          <Button fullWidth mt={30} color="teal" size="md" type="submit">
+            Edit
           </Button>
         </form>
       </Box>
