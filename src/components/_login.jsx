@@ -65,7 +65,7 @@ export const Login = () => {
       <Group sx={{ display: "flex", alignItems: "center" }} spacing={5}>
         <Image src={loginLogo} width={40} />
         <Text weight={500} size="xl">
-          Login
+          Log in
         </Text>
       </Group>
       <Divider

@@ -40,7 +40,7 @@ export function TodolistProvider(props) {
       if (event === "SIGNED_IN") {
         setTodos([]);
         setTodosFiltered([]);
-        getUserProfile(session.user);
+        getUserProfile({ ...session.user, token: session.access_token });
         setLoggedIn(true);
       }
       if (event === "SIGNED_OUT") {
@@ -82,7 +82,7 @@ export function TodolistProvider(props) {
         })
         .subscribe();
 
-      console.log("Subscribing", todolistSubscription);
+      //console.log("Subscribing", todolistSubscription);
     }
 
     async function removeTodolistSubscription() {
@@ -94,7 +94,7 @@ export function TodolistProvider(props) {
       //console.log("User", user);
       //console.log("Onsubscribing 1", todolistSubscription);
       if (todolistSubscription !== undefined) {
-        console.log("Removing", todolistSubscription);
+        //console.log("Removing", todolistSubscription);
         removeTodolistSubscription();
       }
       //if (!user && todolistSubscription === "undefined") {
@@ -163,6 +163,7 @@ export function TodolistProvider(props) {
   };
 
   const getUserProfile = async (user) => {
+    console.log("User Data", user);
     try {
       const { data } = await supabase
         .from("profiles")
@@ -170,7 +171,14 @@ export function TodolistProvider(props) {
         .eq("id", user.id)
         .single();
 
-      setUser({ id: user.id, name: data.username, email: user.email });
+      setUser({
+        id: user.id,
+        name: data.username,
+        firstname: data.firstname,
+        email: user.email,
+        avatarUrl: data.avatar_url,
+        token: user.access_token,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -191,6 +199,7 @@ export function TodolistProvider(props) {
     setPayloadAtForm,
     setLoggedIn,
     setUser,
+    getUserProfile,
   };
 
   return <TodolistContext.Provider value={value} {...props} />;

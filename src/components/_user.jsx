@@ -92,7 +92,10 @@ export const User = () => {
         placement="center"
         control={
           <UserButton
-            image="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+            image={
+              user &&
+              `https://gyuabmfrblnjhdnvsdof.supabase.co/storage/v1/object/public/${user.avatarUrl}`
+            }
             name={user && user.name}
             email={user && user.email}
           />
@@ -100,9 +103,9 @@ export const User = () => {
       >
         <Menu.Item
           icon={<Profile size={16} />}
-          onClick={() => console.log("Hello")}
+          onClick={() => navigate("/profile")}
         >
-          Perfil
+          Profile
         </Menu.Item>
         <Menu.Item icon={<Logout size={16} />} onClick={() => logout()}>
           Logout

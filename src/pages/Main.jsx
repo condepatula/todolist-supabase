@@ -8,6 +8,7 @@ import { Login } from "../components/_login";
 import { Landing } from "./Landing";
 import { useTodolist } from "../context/todolist-context";
 import { PageNotFound } from "./PageNotFound";
+import { Profile } from "../components/_profile";
 
 export const Main = () => {
   const matches = useMediaQuery("(min-width:900px)");
@@ -28,6 +29,7 @@ export const Main = () => {
             {loggedIn ? (
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="*" element={<PageNotFound />} />
               </Routes>
             ) : (
