@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useState, useEffect } from "react";
 import {
   Group,
   Avatar,
@@ -17,12 +17,36 @@ import {
 } from "tabler-icons-react";
 import { supabase } from "../api/client";
 import { useNavigate } from "react-router-dom";
-import { useTodolist } from "../context/todolist-context";
 
 export const User = () => {
   const theme = useMantineTheme();
-  const { user } = useTodolist();
   const navigate = useNavigate();
+  const user = supabase.auth.user();
+
+  const [username, setUsername] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [publicURL, setPublicURL] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .then((response) => {
+          setUsername(response.data[0].username);
+          setEmail(user.email);
+          if (response.data[0].avatar_url) {
+            const { data } = supabase.storage
+              .from("avatars")
+              .getPublicUrl(response.data[0].avatar_url);
+            if (data.publicURL) {
+              setPublicURL(data.publicURL);
+            }
+          }
+        });
+    }
+  }, [user]);
 
   const logout = async () => {
     try {
@@ -90,16 +114,7 @@ export const User = () => {
       <Menu
         withArrow
         placement="center"
-        control={
-          <UserButton
-            image={
-              user &&
-              `https://gyuabmfrblnjhdnvsdof.supabase.co/storage/v1/object/public/${user.avatarUrl}`
-            }
-            name={user && user.name}
-            email={user && user.email}
-          />
-        }
+        control={<UserButton image={publicURL} name={username} email={email} />}
       >
         <Menu.Item
           icon={<Profile size={16} />}

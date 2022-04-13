@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   Text,
@@ -14,100 +15,185 @@ import {
   Input,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useFocusTrap } from "@mantine/hooks";
+import { useFocusTrap, useOs } from "@mantine/hooks";
 import { supabase } from "../api/client";
-import { useTodolist } from "../context/todolist-context";
-import { Camera } from "tabler-icons-react";
+import Resizer from "react-image-file-resizer";
+import { Camera, X } from "tabler-icons-react";
 import profileLogo from "../assets/img/profile.png";
 
 export const Profile = () => {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
+
   const focusTrapRef = useFocusTrap();
-  const { user, getUserProfile } = useTodolist();
+  const navigate = useNavigate();
+  const os = useOs();
+
+  const [avatarUrl, setAvatarUrl] = useState();
+  const [publicURL, setPublicURL] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [isImageUploadLoading, setIsImageUploadLoading] = useState(false);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+
+  const user = supabase.auth.user();
 
   const form = useForm({
     initialValues: {
-      username: " ",
-      firstname: " ",
-      email: " ",
+      username: "",
+      email: "",
+    },
+    validate: {
+      username: (value) =>
+        value.length < 10 ? "Must be 10 or more characters" : null,
     },
   });
 
   useEffect(() => {
+    if (!user) {
+      navigate("/sigin");
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
     if (user) {
-      form.setFieldValue("username", user.name);
-      form.setFieldValue(
-        "firstname",
-        user.firstname === undefined ? " " : user.firstname
-      );
-      form.setFieldValue("email", user.email);
-    }
-  }, [user, form]);
-
-  const updateProfile = async (payload) => {
-    console.log("Payload", payload);
-    try {
-      const { error } = await supabase
+      setLoading(true);
+      supabase
         .from("profiles")
-        .update(payload)
-        .match({ id: user.id });
-
-      if (error) throw error;
-    } catch (error) {
-      console.log("Update Profile", error);
-    }
-  };
-
-  const uploadPhoto = async (e) => {
-    try {
-      let file = e.target.files[0];
-      let format = file.type.split("/")[1];
-
-      if (user.avatarUrl) {
-        console.log("Updating avatar...", user.avatarUrl);
-        const { data, error } = await supabase.storage
-          .from("public")
-          .update(`${user.avatarUrl}`, file, {
-            cacheControl: "3600",
-            upsert: false,
-          });
-        if (error) {
-          console.log("Updating Error", error);
-        }
-        if (data) {
-          console.log("Updating profile cleaning avatar_url...", data);
-          updateProfile({ avatar_url: null });
-        }
-      } else {
-        if (file) {
-          console.log("Uploading photo...");
-          const { data, error } = await supabase.storage
-            .from("public")
-            .upload(`${Date.now()}.${format}`, file, {
-              cacheControl: "3600",
-              upsert: false,
-            });
-
-          if (error) throw error;
-          if (data) {
-            updateProfile({ avatar_url: `${data.Key}` });
-            getUserProfile(user);
+        .select("*")
+        .eq("id", user.id)
+        .then((response) => {
+          setAvatarUrl(response.data[0].avatar_url);
+          form.setFieldValue("username", response.data[0].username);
+          form.setFieldValue("email", user.email);
+          if (response.data[0].avatar_url) {
+            const { data } = supabase.storage
+              .from("avatars")
+              .getPublicUrl(response.data[0].avatar_url);
+            if (data.publicURL) {
+              setPublicURL(data.publicURL);
+            }
           }
-        }
+          setLoading(false);
+        });
+    }
+  }, [user]);
+
+  const resizeFile = (file) =>
+    new Promise((resolve) => {
+      Resizer.imageFileResizer(
+        file,
+        500,
+        500,
+        file.type.split("/")[1],
+        100,
+        os === "ios" ? 90 : 0,
+        (uri) => {
+          resolve(uri);
+        },
+        "file"
+      );
+    });
+
+  const handleUploadImage = async (e) => {
+    setIsImageUploadLoading(true);
+    let file = await resizeFile(e.target.files[0]);
+    let format = file.type.split("/")[1];
+    let fileName = `${Date.now()}.${format}`;
+    const userId = user.id;
+    if (avatarUrl && file) {
+      const { errorRemoveFile } = await supabase.storage
+        .from("avatars")
+        .remove([avatarUrl]);
+      if (errorRemoveFile) {
+        console.log("errorRemoveFile", errorRemoveFile);
+        setIsImageUploadLoading(false);
+        return;
       }
-    } catch (error) {
-      console.log(error);
+      const { errorUploadFile } = await supabase.storage
+        .from("avatars")
+        .upload(`public/${fileName}`, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+      if (errorUploadFile) {
+        setIsImageUploadLoading(false);
+        console.log("errorUploadFile", errorUploadFile);
+        return;
+      }
+      await supabase
+        .from("profiles")
+        .update({ avatar_url: `public/${fileName}`, updated_at: new Date() })
+        .eq("id", userId);
+      const { data } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(`public/${fileName}`);
+      if (data.publicURL) {
+        setPublicURL(data.publicURL);
+      }
+      setAvatarUrl(`public/${fileName}`);
+      setIsImageUploadLoading(false);
+    } else {
+      const { error } = await supabase.storage
+        .from("avatars")
+        .upload(`public/${fileName}`, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+      if (error) {
+        setIsImageUploadLoading(false);
+        console.log("Error", error);
+        return;
+      }
+      await supabase
+        .from("profiles")
+        .update({ avatar_url: `public/${fileName}` })
+        .eq("id", userId);
+      setAvatarUrl(`public/${fileName}`);
+      setIsImageUploadLoading(false);
     }
   };
+
+  const handleUpdate = async (update) => {
+    setIsUpdatingProfile(true);
+    const userId = user.id;
+    const { error: errorUpdateProfile } = await supabase
+      .from("profiles")
+      .update({ username: update.username })
+      .eq("id", userId);
+    if (errorUpdateProfile) {
+      console.log("errorUpdateProfile", errorUpdateProfile);
+      setIsUpdatingProfile(false);
+      return;
+    }
+    setIsUpdatingProfile(false);
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ height: "100vh" }}>
+        <Text size="sm">Loading Profile...</Text>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ height: "100vh" }}>
-      <Group sx={{ display: "flex", alignItems: "center" }} spacing={5}>
-        <Image src={profileLogo} width={40} />
-        <Text weight={500} size="xl">
-          Profile
-        </Text>
+      <Group
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Group sx={{ display: "flex", alignItems: "center" }} spacing={5}>
+          <Image src={profileLogo} width={40} />
+          <Text weight={500} size="xl">
+            Profile
+          </Text>
+        </Group>
+        <ActionIcon onClick={() => navigate("/")}>
+          <X />
+        </ActionIcon>
       </Group>
       <Divider
         mb="xl"
@@ -117,57 +203,58 @@ export const Profile = () => {
       <Box sx={{ maxWidth: "500px", margin: "auto" }} pl={10} pr={10}>
         <form
           ref={focusTrapRef}
-          onSubmit={form.onSubmit((values) => console.log(values))}
+          onSubmit={form.onSubmit((values) => handleUpdate(values))}
         >
           <Group position="center" mb="xl" sx={{ position: "relative" }}>
             <Avatar
-              src={
-                user &&
-                `https://gyuabmfrblnjhdnvsdof.supabase.co/storage/v1/object/public/${user.avatarUrl}`
-              }
+              src={publicURL}
               alt="Avatar"
               sx={{
                 width: "150px",
                 height: "150px",
                 borderRadius: "50%",
+                opacity: isImageUploadLoading ? "0.5" : "",
               }}
             />
-            <ActionIcon
-              sx={{
-                position: "absolute",
-                bottom: "5px",
-                borderRadius: "50%",
-                backgroundColor: "white",
-              }}
-            >
-              <Camera color="gray" />
-              <Input
-                type="file"
-                accept="image/*"
+            {isImageUploadLoading && (
+              <Text
+                size="xs"
                 sx={{
                   position: "absolute",
-                  opacity: "0",
                 }}
-                onChange={(e) => uploadPhoto(e)}
-              />
-            </ActionIcon>
+              >
+                Uploading...
+              </Text>
+            )}
+            {!isImageUploadLoading && (
+              <ActionIcon
+                sx={{
+                  position: "absolute",
+                  bottom: "5px",
+                  borderRadius: "50%",
+                  backgroundColor: "white",
+                }}
+              >
+                <Camera color="gray" />
+                <Input
+                  type="file"
+                  accept="image/*"
+                  sx={{
+                    position: "absolute",
+                    opacity: "0",
+                  }}
+                  onChange={(e) => handleUploadImage(e)}
+                />
+              </ActionIcon>
+            )}
           </Group>
           <TextInput
-            disabled
             data-autofocus
             required
             description="Username must be 10 or more characters"
-            label="Username"
-            placeholder="Your username"
+            label="User Name"
+            placeholder="Your User Name"
             {...form.getInputProps("username")}
-          />
-          <TextInput
-            disabled
-            data-autofocus
-            required
-            label="First name"
-            placeholder="Your first name"
-            {...form.getInputProps("firstname")}
           />
           <TextInput
             disabled
@@ -177,9 +264,15 @@ export const Profile = () => {
             placeholder="your@email.com"
             {...form.getInputProps("email")}
           />
-
-          <Button fullWidth mt={30} color="teal" size="md" type="submit">
-            Edit
+          <Button
+            fullWidth
+            mt={30}
+            color="teal"
+            size="md"
+            type="submit"
+            loading={isUpdatingProfile}
+          >
+            {isUpdatingProfile ? "Updating Profile" : "Save"}
           </Button>
         </form>
       </Box>
