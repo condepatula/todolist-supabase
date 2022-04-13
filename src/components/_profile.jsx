@@ -54,6 +54,7 @@ export const Profile = () => {
     }
   }, [user, navigate]);
 
+  /* eslint-disable */
   useEffect(() => {
     if (user) {
       setLoading(true);
@@ -77,6 +78,7 @@ export const Profile = () => {
         });
     }
   }, [user]);
+  /* eslint-enable */
 
   const resizeFile = (file) =>
     new Promise((resolve) => {
