@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { MantineProvider, ColorSchemeProvider } from "@mantine/core";
 import { NotificationsProvider } from "@mantine/notifications";
+import { useColorScheme } from '@mantine/hooks';
 import { Main } from "./pages/Main";
 import { TodolistProvider } from "./context/todolist-context";
 import "./App.css";
 
 const App = () => {
-  const [colorScheme, setColorScheme] = useState("light");
+  const preferredColorScheme = useColorScheme();
+  const [colorScheme, setColorScheme] = useState(preferredColorScheme);
   const toggleColorScheme = (value) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
 
