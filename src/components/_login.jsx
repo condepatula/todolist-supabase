@@ -10,21 +10,24 @@ import {
   useMantineTheme,
   useMantineColorScheme,
 } from "@mantine/core";
-import { useState } from "react";
+//import { useState } from "react";
 import { useForm } from "@mantine/form";
 import { useFocusTrap } from "@mantine/hooks";
-import { showNotification } from "@mantine/notifications";
+//import { showNotification } from "@mantine/notifications";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../api/client";
-import { X, EyeOff, EyeCheck } from "tabler-icons-react";
+//import { supabase } from "../api/client";
+import { /*X,*/ EyeOff, EyeCheck } from "tabler-icons-react";
 import loginLogo from "../assets/img/login.png";
+import { useUser } from "../context/user-context";
 
 export const Login = () => {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
   const focusTrapRef = useFocusTrap();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const { loading, logIn } = useUser();
+  //const { setUser } = useUser();
+  //const [loading, setLoading] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -37,17 +40,15 @@ export const Login = () => {
     },
   });
 
-  const logIn = async (data) => {
+  /*const logIn = async (data) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signIn({
+      const { user, error } = await supabase.auth.signIn({
         email: data.email,
         password: data.password,
       });
       if (error) throw error;
-      showNotification({
-        message: "Welcome!",
-      });
+      setUser(user);
       navigate("/");
     } catch (error) {
       showNotification({
@@ -58,7 +59,7 @@ export const Login = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };*/
 
   return (
     <Box sx={{ height: "100vh" }}>
@@ -76,7 +77,7 @@ export const Login = () => {
       <Box sx={{ maxWidth: "500px", margin: "auto" }} pl={10} pr={10}>
         <form
           ref={focusTrapRef}
-          onSubmit={form.onSubmit((values) => logIn(values))}
+          onSubmit={form.onSubmit((values) => logIn(values, navigate))}
         >
           <TextInput
             data-autofocus

@@ -6,18 +6,18 @@ import { Signup } from "../components/_signup";
 import { Home } from "./Home";
 import { Login } from "../components/_login";
 import { Landing } from "./Landing";
-import { useTodolist } from "../context/todolist-context";
 import { PageNotFound } from "./PageNotFound";
 import { Profile } from "../components/_profile";
+import { useUser } from "../context/user-context";
 
 export const Main = () => {
   const matches = useMediaQuery("(min-width:900px)");
-  const { loggedIn } = useTodolist();
+  const { user } = useUser();
 
   return (
     <Paper radius={0} sx={{ height: matches ? "100vh" : "" }}>
       <Router>
-        <AppShell padding={0} header={<Header />}>
+        <AppShell padding={0} header={<Header />} fixed>
           <Box
             sx={{
               maxWidth: "980px",
@@ -26,7 +26,7 @@ export const Main = () => {
               padding: "10px",
             }}
           >
-            {loggedIn ? (
+            {user ? (
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/profile" element={<Profile />} />

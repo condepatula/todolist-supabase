@@ -15,27 +15,25 @@ import {
   Input,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useFocusTrap, useOs } from "@mantine/hooks";
-import { supabase } from "../api/client";
-import Resizer from "react-image-file-resizer";
+import { useFocusTrap } from "@mantine/hooks";
 import { Camera, X } from "tabler-icons-react";
 import profileLogo from "../assets/img/profile.png";
+import { useUser } from "../context/user-context";
 
 export const Profile = () => {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
-
   const focusTrapRef = useFocusTrap();
   const navigate = useNavigate();
-  const os = useOs();
-
-  const [avatarUrl, setAvatarUrl] = useState();
-  const [publicURL, setPublicURL] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [isImageUploadLoading, setIsImageUploadLoading] = useState(false);
-  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-
-  const user = supabase.auth.user();
+  const [publicURL, setPublicURL] = useState();
+  const {
+    user,
+    account,
+    isUpdatingProfile,
+    isImageUploadLoading,
+    handleUpdate,
+    handleUploadImage,
+  } = useUser();
 
   const form = useForm({
     initialValues: {
@@ -56,127 +54,13 @@ export const Profile = () => {
 
   /* eslint-disable */
   useEffect(() => {
-    if (user) {
-      setLoading(true);
-      supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .then((response) => {
-          setAvatarUrl(response.data[0].avatar_url);
-          form.setFieldValue("username", response.data[0].username);
-          form.setFieldValue("email", user.email);
-          if (response.data[0].avatar_url) {
-            const { data } = supabase.storage
-              .from("avatars")
-              .getPublicUrl(response.data[0].avatar_url);
-            if (data.publicURL) {
-              setPublicURL(data.publicURL);
-            }
-          }
-          setLoading(false);
-        });
+    if (account) {
+      setPublicURL(account.publicURL);
+      form.setFieldValue("username", account.username);
+      form.setFieldValue("email", account.email);
     }
-  }, [user]);
+  }, [account]);
   /* eslint-enable */
-
-  const resizeFile = (file) =>
-    new Promise((resolve) => {
-      Resizer.imageFileResizer(
-        file,
-        500,
-        500,
-        file.type.split("/")[1],
-        100,
-        os === "ios" ? 90 : 0,
-        (uri) => {
-          resolve(uri);
-        },
-        "file"
-      );
-    });
-
-  const handleUploadImage = async (e) => {
-    setIsImageUploadLoading(true);
-    let file = await resizeFile(e.target.files[0]);
-    let format = file.type.split("/")[1];
-    let fileName = `${Date.now()}.${format}`;
-    const userId = user.id;
-    if (avatarUrl && file) {
-      const { errorRemoveFile } = await supabase.storage
-        .from("avatars")
-        .remove([avatarUrl]);
-      if (errorRemoveFile) {
-        console.log("errorRemoveFile", errorRemoveFile);
-        setIsImageUploadLoading(false);
-        return;
-      }
-      const { errorUploadFile } = await supabase.storage
-        .from("avatars")
-        .upload(`public/${fileName}`, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-      if (errorUploadFile) {
-        setIsImageUploadLoading(false);
-        console.log("errorUploadFile", errorUploadFile);
-        return;
-      }
-      await supabase
-        .from("profiles")
-        .update({ avatar_url: `public/${fileName}`, updated_at: new Date() })
-        .eq("id", userId);
-      const { data } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(`public/${fileName}`);
-      if (data.publicURL) {
-        setPublicURL(data.publicURL);
-      }
-      setAvatarUrl(`public/${fileName}`);
-      setIsImageUploadLoading(false);
-    } else {
-      const { error } = await supabase.storage
-        .from("avatars")
-        .upload(`public/${fileName}`, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-      if (error) {
-        setIsImageUploadLoading(false);
-        console.log("Error", error);
-        return;
-      }
-      await supabase
-        .from("profiles")
-        .update({ avatar_url: `public/${fileName}` })
-        .eq("id", userId);
-      setAvatarUrl(`public/${fileName}`);
-      setIsImageUploadLoading(false);
-    }
-  };
-
-  const handleUpdate = async (update) => {
-    setIsUpdatingProfile(true);
-    const userId = user.id;
-    const { error: errorUpdateProfile } = await supabase
-      .from("profiles")
-      .update({ username: update.username })
-      .eq("id", userId);
-    if (errorUpdateProfile) {
-      console.log("errorUpdateProfile", errorUpdateProfile);
-      setIsUpdatingProfile(false);
-      return;
-    }
-    setIsUpdatingProfile(false);
-  };
-
-  if (loading) {
-    return (
-      <Box sx={{ height: "100vh" }}>
-        <Text size="sm">Loading Profile...</Text>
-      </Box>
-    );
-  }
 
   return (
     <Box sx={{ height: "100vh" }}>

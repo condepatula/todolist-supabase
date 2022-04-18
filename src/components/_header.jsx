@@ -10,7 +10,7 @@ export const Header = () => {
   const { colorScheme } = useMantineColorScheme();
 
   return (
-    <HeaderMan height={48} p="xs">
+    <HeaderMan height={48} p="xs" fixed>
       <Group
         sx={{
           maxHeight: "100%",

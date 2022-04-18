@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, useContext } from "react";
 import { showNotification } from "@mantine/notifications";
 import { Check } from "tabler-icons-react";
 import { supabase } from "../api/client";
+import { useUser } from "./user-context";
 
 const TodolistContext = createContext();
 
@@ -12,7 +13,10 @@ export function TodolistProvider(props) {
   const [formOpened, openForm] = useState(false);
   const [payloadAtForm, setPayloadAtForm] = useState({});
   const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const { user } = useUser();
+  //const [user, setUser] = useState(null);
+
+  //const user = supabase.auth.user();
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -25,12 +29,12 @@ export function TodolistProvider(props) {
         setTodos(data);
       }
     };
-
     fetchTodos();
   }, [user]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     const user = supabase.auth.user();
+
     if (user) {
       setLoggedIn(true);
       getUserProfile(user);
@@ -50,7 +54,7 @@ export function TodolistProvider(props) {
     });
 
     return () => data.unsubscribe();
-  }, []);
+  }, []);*/
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -162,7 +166,7 @@ export function TodolistProvider(props) {
     }
   };
 
-  const getUserProfile = async (user) => {
+  /*const getUserProfile = async (user) => {
     console.log("User Data", user);
     try {
       const { data } = await supabase
@@ -182,7 +186,7 @@ export function TodolistProvider(props) {
     } catch (error) {
       console.log(error);
     }
-  };
+  };*/
 
   const value = {
     todosFiltered,
@@ -198,8 +202,8 @@ export function TodolistProvider(props) {
     openForm,
     setPayloadAtForm,
     setLoggedIn,
-    setUser,
-    getUserProfile,
+    /*setUser,
+    getUserProfile,*/
   };
 
   return <TodolistContext.Provider value={value} {...props} />;

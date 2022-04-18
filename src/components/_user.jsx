@@ -15,19 +15,27 @@ import {
   ChevronRight,
   ChevronLeft,
 } from "tabler-icons-react";
-import { supabase } from "../api/client";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/user-context";
 
 export const User = () => {
   const theme = useMantineTheme();
   const navigate = useNavigate();
-  const user = supabase.auth.user();
+  const { account, logOut } = useUser();
 
   const [username, setUsername] = useState(null);
   const [email, setEmail] = useState(null);
   const [publicURL, setPublicURL] = useState(null);
 
   useEffect(() => {
+    if (account) {
+      setUsername(account.username);
+      setPublicURL(account.publicURL);
+      setEmail(account.email);
+    }
+  }, [account]);
+
+  /*useEffect(() => {
     if (user) {
       supabase
         .from("profiles")
@@ -46,9 +54,31 @@ export const User = () => {
           }
         });
     }
-  }, [user]);
+  }, [user]);*/
 
-  const logout = async () => {
+  /*useEffect(() => {
+    const subscription = supabase
+      .from("profiles")
+      .on("UPDATE", (payload) => {
+        console.log(payload);
+        setUsername(payload.new.username);
+        if (payload.new.avatar_url) {
+          const { data } = supabase.storage
+            .from("avatars")
+            .getPublicUrl(payload.new.avatar_url);
+          if (data.publicURL) {
+            setPublicURL(data.publicURL);
+          }
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeSubscription(subscription);
+    };
+  }, []);*/
+
+  /*const logout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -56,7 +86,7 @@ export const User = () => {
     } catch (error) {
       console.log(error);
     }
-  };
+  };*/
 
   const UserButton = forwardRef(
     ({ image, name, email, icon, ...others }, ref) => (
@@ -122,7 +152,7 @@ export const User = () => {
         >
           Profile
         </Menu.Item>
-        <Menu.Item icon={<Logout size={16} />} onClick={() => logout()}>
+        <Menu.Item icon={<Logout size={16} />} onClick={() => logOut(navigate)}>
           Logout
         </Menu.Item>
       </Menu>
