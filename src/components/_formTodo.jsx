@@ -1,16 +1,25 @@
 import { useState, useEffect } from "react";
-import { Drawer, Box, TextInput, Group, Button } from "@mantine/core";
-import { useFocusTrap } from "@mantine/hooks";
+import { Drawer, Box, Textarea, Group, Button } from "@mantine/core";
+import { DatePicker } from "@mantine/dates";
+import { useFocusTrap, useMediaQuery } from "@mantine/hooks";
 import { useTodolist } from "../context/todolist-context";
 
 export const FormTodo = () => {
+  const isMobile = useMediaQuery("(max-width: 755px)");
   const focusTrapRef = useFocusTrap();
   const [input, setInput] = useState("");
-  const { formOpened, payloadAtForm, openForm, addTodo, updateTodo } =
+  const [dateAt, setDateAt] = useState(new Date());
+  const { loading, formOpened, payloadAtForm, openForm, addTodo, updateTodo } =
     useTodolist();
 
   useEffect(() => {
-    payloadAtForm ? setInput(payloadAtForm.task) : setInput("");
+    if (payloadAtForm) {
+      setInput(payloadAtForm.task);
+      setDateAt(payloadAtForm.dateAt);
+    } else {
+      setInput("");
+      setDateAt(new Date());
+    }
   }, [payloadAtForm]);
 
   return (
@@ -19,7 +28,7 @@ export const FormTodo = () => {
       onClose={() => openForm(false)}
       title={payloadAtForm ? "Edit Task" : "Add Task"}
       padding="xl"
-      size="sm"
+      size="md"
       position="bottom"
     >
       <Box sx={{ maxWidth: 400 }} mx="auto">
@@ -28,15 +37,28 @@ export const FormTodo = () => {
           onSubmit={(e) => {
             e.preventDefault();
             if (payloadAtForm) {
-              updateTodo(payloadAtForm.id, { ...payloadAtForm, task: input });
+              updateTodo(payloadAtForm.id, {
+                ...payloadAtForm,
+                task: input,
+                date_at: dateAt,
+              });
             } else {
-              addTodo({ task: input, done: false });
+              addTodo({ task: input, date_at: dateAt, done: false });
               setInput("");
             }
             openForm(false);
           }}
         >
-          <TextInput
+          <DatePicker
+            dropdownType={isMobile ? "modal" : "popover"}
+            mb="sm"
+            placeholder="Pick date"
+            label="Date"
+            required
+            value={dateAt}
+            onChange={setDateAt}
+          />
+          <Textarea
             data-autofocus
             required
             label="Task"
@@ -46,8 +68,19 @@ export const FormTodo = () => {
             onChange={(e) => setInput(e.target.value)}
           />
           <Group position="right" mt="md">
-            <Button type="submit" sx={{ width: "100%" }} color="teal">
-              {payloadAtForm ? "Update" : "Add"}
+            <Button
+              type="submit"
+              sx={{ width: "100%" }}
+              color="teal"
+              loading={loading}
+            >
+              {payloadAtForm
+                ? loading
+                  ? "Updating"
+                  : "Update"
+                : loading
+                ? "Adding"
+                : "Add"}
             </Button>
           </Group>
         </form>

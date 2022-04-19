@@ -14,7 +14,7 @@ export const TodoList = () => {
         <Box sx={{ textAlign: "center" }} mt={50}>
           <Image src={logo} width={200} />
           <Text size="sm" mt={20}>
-            No data found...
+            No task found...
           </Text>
         </Box>
       </Center>

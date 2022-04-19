@@ -35,59 +35,6 @@ export const User = () => {
     }
   }, [account]);
 
-  /*useEffect(() => {
-    if (user) {
-      supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .then((response) => {
-          setUsername(response.data[0].username);
-          setEmail(user.email);
-          if (response.data[0].avatar_url) {
-            const { data } = supabase.storage
-              .from("avatars")
-              .getPublicUrl(response.data[0].avatar_url);
-            if (data.publicURL) {
-              setPublicURL(data.publicURL);
-            }
-          }
-        });
-    }
-  }, [user]);*/
-
-  /*useEffect(() => {
-    const subscription = supabase
-      .from("profiles")
-      .on("UPDATE", (payload) => {
-        console.log(payload);
-        setUsername(payload.new.username);
-        if (payload.new.avatar_url) {
-          const { data } = supabase.storage
-            .from("avatars")
-            .getPublicUrl(payload.new.avatar_url);
-          if (data.publicURL) {
-            setPublicURL(data.publicURL);
-          }
-        }
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeSubscription(subscription);
-    };
-  }, []);*/
-
-  /*const logout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      navigate("/");
-    } catch (error) {
-      console.log(error);
-    }
-  };*/
-
   const UserButton = forwardRef(
     ({ image, name, email, icon, ...others }, ref) => (
       <UnstyledButton

@@ -23,6 +23,48 @@ export function UserProvider(props) {
     }
   }, []);
 
+  const signUp = async (data, navigate) => {
+    try {
+      setLoading(true);
+      const { user, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+      if (error) throw error;
+      showNotification({
+        message: "Account has created!",
+        icon: <Check />,
+        color: "teal",
+      });
+      createProfile(user.id, data.username, data.email);
+      setUser(user);
+      getProfile(user);
+      navigate("/");
+    } catch (error) {
+      showNotification({
+        message: error.message,
+        icon: <X />,
+        color: "red",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createProfile = async (id, username, email) => {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .insert({ id, updated_at: new Date(), username })
+        .single();
+      if (error) throw error;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logIn = async (data, navigate) => {
     try {
       setLoading(true);
@@ -50,6 +92,7 @@ export function UserProvider(props) {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       setUser(null);
+      setAccount(null);
       navigate("/");
     } catch (error) {
       console.log(error);
@@ -148,8 +191,7 @@ export function UserProvider(props) {
         avatarURL: atribute.avatarURL,
       }));
       setIsImageUploadLoading(false);
-    } /*else {
-      console.log("entró aquí");
+    } else {
       const { error } = await supabase.storage
         .from("avatars")
         .upload(`public/${fileName}`, file, {
@@ -165,10 +207,20 @@ export function UserProvider(props) {
         .from("profiles")
         .update({ avatar_url: `public/${fileName}` })
         .eq("id", userId);
+      const { data } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(`public/${fileName}`);
+      if (data.publicURL) {
+        atribute.publicURL = data.publicURL;
+      }
       atribute.avatarURL = `public/${fileName}`;
-      setAccount((prev) => ({ ...prev, avatarURL: atribute.avatarURL }));
+      setAccount((prev) => ({
+        ...prev,
+        publicURL: atribute.publicURL,
+        avatarURL: atribute.avatarURL,
+      }));
       setIsImageUploadLoading(false);
-    }*/
+    }
   };
 
   const value = {
@@ -177,6 +229,7 @@ export function UserProvider(props) {
     account,
     isUpdatingProfile,
     isImageUploadLoading,
+    signUp,
     logIn,
     logOut,
     getProfile,

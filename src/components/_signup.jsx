@@ -12,21 +12,17 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useFocusTrap } from "@mantine/hooks";
-import { showNotification } from "@mantine/notifications";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../api/client";
-import { useTodolist } from "../context/todolist-context";
-import { Check, X, EyeCheck, EyeOff } from "tabler-icons-react";
+import { EyeCheck, EyeOff } from "tabler-icons-react";
 import signupLogo from "../assets/img/signup.png";
+import { useUser } from "../context/user-context";
 
 export const Signup = () => {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
   const focusTrapRef = useFocusTrap();
   const navigate = useNavigate();
-  const { setLoggedIn, setUser } = useTodolist();
-  const [loading, setLoading] = useState(false);
+  const { loading, signUp } = useUser();
 
   const form = useForm({
     initialValues: {
@@ -44,48 +40,6 @@ export const Signup = () => {
     },
   });
 
-  const signUp = async (data) => {
-    try {
-      setLoading(true);
-      const { user, error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-      if (error) throw error;
-      showNotification({
-        message: "Account has created!",
-        icon: <Check />,
-        color: "teal",
-      });
-      createProfile(user.id, data.username, data.email);
-      setLoggedIn(true);
-      navigate("/");
-    } catch (error) {
-      showNotification({
-        message: error.message,
-        icon: <X />,
-        color: "red",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createProfile = async (id, username, email) => {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .insert({ id, updated_at: new Date(), username })
-        .single();
-      if (error) throw error;
-      setUser({ id: data.id, name: data.username, email });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <Box sx={{ height: "100vh" }}>
       <Group sx={{ display: "flex", alignItems: "center" }} spacing={5}>
@@ -102,7 +56,7 @@ export const Signup = () => {
       <Box sx={{ maxWidth: "500px", margin: "auto" }} pl={10} pr={10}>
         <form
           ref={focusTrapRef}
-          onSubmit={form.onSubmit((values) => signUp(values))}
+          onSubmit={form.onSubmit((values) => signUp(values, navigate))}
         >
           <TextInput
             data-autofocus

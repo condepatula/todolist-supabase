@@ -7,16 +7,16 @@ import {
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { Sun, MoonStars, Plus } from "tabler-icons-react";
-import { supabase } from "../api/client";
 import { User } from "../components/_user";
 import { useTodolist } from "../context/todolist-context";
+import { useUser } from "../context/user-context";
 
 export const Actions = () => {
   const theme = useMantineTheme();
   const matches = useMediaQuery("(min-width:900px)");
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const { openForm, setPayloadAtForm } = useTodolist();
-  const user = supabase.auth.user();
+  const { user } = useUser();
 
   return (
     <Group position="apart">

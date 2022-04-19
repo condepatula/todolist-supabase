@@ -8,7 +8,9 @@ export const Filter = () => {
     <Box pb={20} pt={20}>
       <RadioGroup
         label="Select to-do list status"
-        description={`${todosFiltered.length} To do list found`}
+        description={`${todosFiltered.length} ${
+          todosFiltered.length > 1 ? "tasks founds" : "task found"
+        } `}
         value={filter}
         onChange={setFilter}
         size="sm"

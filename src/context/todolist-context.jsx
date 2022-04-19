@@ -12,7 +12,8 @@ export function TodolistProvider(props) {
   const [filter, setFilter] = useState("ALL");
   const [formOpened, openForm] = useState(false);
   const [payloadAtForm, setPayloadAtForm] = useState({});
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(false);
+  //const [loggedIn, setLoggedIn] = useState(false);
   const { user } = useUser();
   //const [user, setUser] = useState(null);
 
@@ -27,6 +28,8 @@ export function TodolistProvider(props) {
           .eq("user_id", user.id)
           .order("id", { ascending: false });
         setTodos(data);
+      } else {
+        setTodos([]);
       }
     };
     fetchTodos();
@@ -125,6 +128,7 @@ export function TodolistProvider(props) {
   }, [todos, filter]);
 
   const addTodo = async (todo) => {
+    setLoading(true);
     const { error } = await supabase
       .from("todos")
       .insert([{ ...todo, user_id: user.id }])
@@ -132,12 +136,12 @@ export function TodolistProvider(props) {
 
     if (!error) {
       showNotification({
-        title: "To Do List",
-        message: "To Do was added!",
+        message: "Task was added!",
         icon: <Check />,
         color: "teal",
       });
     }
+    setLoading(false);
   };
 
   const updateTodo = async (id, data) => {
@@ -145,8 +149,7 @@ export function TodolistProvider(props) {
 
     if (!error) {
       showNotification({
-        title: "To Do List",
-        message: "To Do was updated!",
+        message: "Task was updated!",
         icon: <Check />,
         color: "teal",
       });
@@ -158,8 +161,7 @@ export function TodolistProvider(props) {
 
     if (!error) {
       showNotification({
-        title: "To Do List",
-        message: "To Do was deleted!",
+        message: "Task was deleted!",
         icon: <Check />,
         color: "teal",
       });
@@ -193,15 +195,17 @@ export function TodolistProvider(props) {
     filter,
     formOpened,
     payloadAtForm,
-    loggedIn,
+    //loggedIn,
     user,
+    loading,
+    setTodos,
     setFilter,
     addTodo,
     updateTodo,
     deleteTodo,
     openForm,
     setPayloadAtForm,
-    setLoggedIn,
+    //setLoggedIn,
     /*setUser,
     getUserProfile,*/
   };

@@ -10,13 +10,10 @@ import {
   useMantineTheme,
   useMantineColorScheme,
 } from "@mantine/core";
-//import { useState } from "react";
 import { useForm } from "@mantine/form";
 import { useFocusTrap } from "@mantine/hooks";
-//import { showNotification } from "@mantine/notifications";
 import { useNavigate } from "react-router-dom";
-//import { supabase } from "../api/client";
-import { /*X,*/ EyeOff, EyeCheck } from "tabler-icons-react";
+import { EyeOff, EyeCheck } from "tabler-icons-react";
 import loginLogo from "../assets/img/login.png";
 import { useUser } from "../context/user-context";
 
@@ -26,8 +23,6 @@ export const Login = () => {
   const focusTrapRef = useFocusTrap();
   const navigate = useNavigate();
   const { loading, logIn } = useUser();
-  //const { setUser } = useUser();
-  //const [loading, setLoading] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -39,27 +34,6 @@ export const Login = () => {
       password: (value) => (value.length === 0 ? "Password is required" : null),
     },
   });
-
-  /*const logIn = async (data) => {
-    try {
-      setLoading(true);
-      const { user, error } = await supabase.auth.signIn({
-        email: data.email,
-        password: data.password,
-      });
-      if (error) throw error;
-      setUser(user);
-      navigate("/");
-    } catch (error) {
-      showNotification({
-        message: error.message,
-        icon: <X />,
-        color: "red",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };*/
 
   return (
     <Box sx={{ height: "100vh" }}>
@@ -108,49 +82,4 @@ export const Login = () => {
       </Box>
     </Box>
   );
-
-  /*return (
-    <Box sx={{ height: "100vh" }}>
-      <Group spacing={5}>
-        <Image src={loginLogo} width={40} />
-        <Text mt={10} weight={500} size="xl">
-          Login
-        </Text>
-      </Group>
-      <Divider mb={50} />
-      <Box sx={{ maxWidth: "500px", margin: "auto" }}>
-        <form onSubmit={(e) => login(e)}>
-          <InputWrapper id="email" label="Email" required mb={10}>
-            <Input
-              id="email"
-              icon={<At />}
-              placeholder="Your email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </InputWrapper>
-          <InputWrapper id="password" label="Password" required mb={10}>
-            <Input
-              id="password"
-              placeholder="Your password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </InputWrapper>
-          <Button
-            fullWidth
-            mt={30}
-            color="teal"
-            size="md"
-            type="submit"
-            loading={loading}
-          >
-            {loading ? "Submiting..." : "Submit"}
-          </Button>
-        </form>
-      </Box>
-    </Box>
-  );*/
 };
