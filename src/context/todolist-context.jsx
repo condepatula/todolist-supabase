@@ -3,16 +3,21 @@ import { showNotification } from "@mantine/notifications";
 import { Check } from "tabler-icons-react";
 import { supabase } from "../api/client";
 import { useUser } from "./user-context";
+import moment from "moment";
+import { useMantineTheme } from "@mantine/core";
 
 const TodolistContext = createContext();
 
 export function TodolistProvider(props) {
+  const theme = useMantineTheme();
   const [todos, setTodos] = useState([]);
   const [todosFiltered, setTodosFiltered] = useState([]);
   const [filter, setFilter] = useState("ALL");
   const [formOpened, openForm] = useState(false);
   const [payloadAtForm, setPayloadAtForm] = useState({});
   const [loading, setLoading] = useState(false);
+  const [dateFilter, setDateFilter] = useState(new Date());
+
   //const [loggedIn, setLoggedIn] = useState(false);
   const { user } = useUser();
   //const [user, setUser] = useState(null);
@@ -117,15 +122,26 @@ export function TodolistProvider(props) {
     setTodosFiltered(
       todos.filter((todo) => {
         if (filter === "DONE") {
-          return todo.done;
+          return (
+            todo.done &&
+            moment(todo.date_at).format("DD/MM/yyyy") ===
+              moment(dateFilter).format("DD/MM/yyyy")
+          );
         }
         if (filter === "PENDING") {
-          return !todo.done;
+          return (
+            !todo.done &&
+            moment(todo.date_at).format("DD/MM/yyyy") ===
+              moment(dateFilter).format("DD/MM/yyyy")
+          );
         }
-        return todo;
+        return (
+          moment(todo.date_at).format("DD/MM/yyyy") ===
+          moment(dateFilter).format("DD/MM/yyyy")
+        );
       })
     );
-  }, [todos, filter]);
+  }, [todos, filter, dateFilter]);
 
   const addTodo = async (todo) => {
     setLoading(true);
@@ -190,6 +206,27 @@ export function TodolistProvider(props) {
     }
   };*/
 
+  const getColorDay = (date) => {
+    let done = 0;
+    let notDone = 0;
+    let color = null;
+    todos.forEach((todo) => {
+      if (
+        moment(todo.date_at).format("DD/MM/yyyy") ===
+        moment(date).format("DD/MM/yyyy")
+      ) {
+        if (!todo.done) {
+          notDone++;
+        } else {
+          done++;
+        }
+      }
+    });
+    if (notDone > 0) color = `${theme.colors.red[2]}`;
+    if (done > 0 && notDone === 0) color = `${theme.colors.green[2]}`;
+    return color;
+  };
+
   const value = {
     todosFiltered,
     filter,
@@ -198,6 +235,7 @@ export function TodolistProvider(props) {
     //loggedIn,
     user,
     loading,
+    dateFilter,
     setTodos,
     setFilter,
     addTodo,
@@ -205,6 +243,8 @@ export function TodolistProvider(props) {
     deleteTodo,
     openForm,
     setPayloadAtForm,
+    setDateFilter,
+    getColorDay,
     //setLoggedIn,
     /*setUser,
     getUserProfile,*/

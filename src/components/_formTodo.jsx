@@ -8,19 +8,26 @@ export const FormTodo = () => {
   const isMobile = useMediaQuery("(max-width: 755px)");
   const focusTrapRef = useFocusTrap();
   const [input, setInput] = useState("");
-  const [dateAt, setDateAt] = useState(new Date());
-  const { loading, formOpened, payloadAtForm, openForm, addTodo, updateTodo } =
-    useTodolist();
+  const {
+    dateFilter,
+    loading,
+    formOpened,
+    payloadAtForm,
+    openForm,
+    addTodo,
+    updateTodo,
+  } = useTodolist();
+  const [dateAt, setDateAt] = useState();
 
   useEffect(() => {
     if (payloadAtForm) {
       setInput(payloadAtForm.task);
-      setDateAt(payloadAtForm.dateAt);
+      setDateAt(new Date(payloadAtForm.date_at));
     } else {
       setInput("");
-      setDateAt(new Date());
+      setDateAt(dateFilter);
     }
-  }, [payloadAtForm]);
+  }, [payloadAtForm, dateFilter]);
 
   return (
     <Drawer

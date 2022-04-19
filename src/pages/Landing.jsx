@@ -37,7 +37,7 @@ export const Landing = () => {
               compact
               color="teal"
             >
-              Log in
+              Log In
             </Button>
           </Link>
           <Text size={matches ? "md" : "sm"}>or if you are not registered</Text>
@@ -48,7 +48,7 @@ export const Landing = () => {
               compact
               color="indigo"
             >
-              Sign up
+              Sign Up
             </Button>
           </Link>
         </Group>

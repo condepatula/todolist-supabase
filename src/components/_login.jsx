@@ -9,11 +9,12 @@ import {
   Group,
   useMantineTheme,
   useMantineColorScheme,
+  ActionIcon,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useFocusTrap } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
-import { EyeOff, EyeCheck } from "tabler-icons-react";
+import { EyeOff, EyeCheck, X } from "tabler-icons-react";
 import loginLogo from "../assets/img/login.png";
 import { useUser } from "../context/user-context";
 
@@ -37,11 +38,22 @@ export const Login = () => {
 
   return (
     <Box sx={{ height: "100vh" }}>
-      <Group sx={{ display: "flex", alignItems: "center" }} spacing={5}>
-        <Image src={loginLogo} width={40} />
-        <Text weight={500} size="xl">
-          Log in
-        </Text>
+      <Group
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Group sx={{ display: "flex", alignItems: "center" }} spacing={5}>
+          <Image src={loginLogo} width={40} />
+          <Text weight={500} size="xl">
+            Log In
+          </Text>
+        </Group>
+        <ActionIcon onClick={() => navigate("/")}>
+          <X />
+        </ActionIcon>
       </Group>
       <Divider
         mb="xl"
@@ -54,12 +66,14 @@ export const Login = () => {
           onSubmit={form.onSubmit((values) => logIn(values, navigate))}
         >
           <TextInput
+            required
             data-autofocus
             label="Email"
             placeholder="your@email.com"
             {...form.getInputProps("email")}
           />
           <PasswordInput
+            required
             mt="sm"
             label="Password"
             placeholder="Password"
@@ -76,7 +90,7 @@ export const Login = () => {
             type="submit"
             loading={loading}
           >
-            {loading ? "Logging in..." : "Log in"}
+            {loading ? "Logging in..." : "Log In"}
           </Button>
         </form>
       </Box>

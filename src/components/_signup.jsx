@@ -9,11 +9,12 @@ import {
   PasswordInput,
   useMantineTheme,
   useMantineColorScheme,
+  ActionIcon,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useFocusTrap } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
-import { EyeCheck, EyeOff } from "tabler-icons-react";
+import { EyeCheck, EyeOff, X } from "tabler-icons-react";
 import signupLogo from "../assets/img/signup.png";
 import { useUser } from "../context/user-context";
 
@@ -42,11 +43,22 @@ export const Signup = () => {
 
   return (
     <Box sx={{ height: "100vh" }}>
-      <Group sx={{ display: "flex", alignItems: "center" }} spacing={5}>
-        <Image src={signupLogo} width={40} />
-        <Text weight={500} size="xl">
-          Sign up
-        </Text>
+      <Group
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Group sx={{ display: "flex", alignItems: "center" }} spacing={5}>
+          <Image src={signupLogo} width={40} />
+          <Text weight={500} size="xl">
+            Sign Up
+          </Text>
+        </Group>
+        <ActionIcon onClick={() => navigate("/")}>
+          <X />
+        </ActionIcon>
       </Group>
       <Divider
         mb="xl"
