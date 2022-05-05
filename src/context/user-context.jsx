@@ -15,7 +15,6 @@ export function UserProvider(props) {
   const [loading, setLoading] = useState(false);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isImageUploadLoading, setIsImageUploadLoading] = useState(false);
-  const [emailConfirmed, setEmailConfirmed] = useState(true);
   const [isProfileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
@@ -96,10 +95,13 @@ export function UserProvider(props) {
         password: data.password,
       });
       if (error) {
-        console.log("logIn", error);
+        showNotification({
+          message: error.message,
+          icon: <X />,
+          color: "red",
+        });
         setLoading(false);
         if (error.message === EMAIL_NOT_CONFIRMED) {
-          setEmailConfirmed(false);
           navigate("/");
         }
       }
@@ -259,7 +261,6 @@ export function UserProvider(props) {
     account,
     isUpdatingProfile,
     isImageUploadLoading,
-    emailConfirmed,
     isProfileOpen,
     signUp,
     logIn,
