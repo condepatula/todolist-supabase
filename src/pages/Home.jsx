@@ -1,5 +1,4 @@
 import { Box, Text } from "@mantine/core";
-import { supabase } from "../api/client";
 import { Calendar } from "../components/_calendar";
 import { Filter } from "../components/_filter";
 import { FormTodo } from "../components/_formTodo";
