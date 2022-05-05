@@ -33,6 +33,7 @@ export const Profile = () => {
     isImageUploadLoading,
     handleUpdate,
     handleUploadImage,
+    setProfileOpen,
   } = useUser();
 
   const form = useForm({
@@ -77,7 +78,12 @@ export const Profile = () => {
             Profile
           </Text>
         </Group>
-        <ActionIcon onClick={() => navigate("/")}>
+        <ActionIcon
+          onClick={() => {
+            navigate("/");
+            setProfileOpen(false);
+          }}
+        >
           <X />
         </ActionIcon>
       </Group>

@@ -7,12 +7,13 @@ import { Home } from "./Home";
 import { Login } from "../components/_login";
 import { Landing } from "./Landing";
 import { PageNotFound } from "./PageNotFound";
+import { Information } from "./Information";
 import { Profile } from "../components/_profile";
 import { useUser } from "../context/user-context";
 
 export const Main = () => {
   const matches = useMediaQuery("(min-width:900px)");
-  const { user } = useUser();
+  const { user } = useUser(null);
 
   return (
     <Paper radius={0} sx={{ height: matches ? "100vh" : "" }}>
@@ -37,6 +38,7 @@ export const Main = () => {
                 <Route path="/" element={<Landing />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/information" element={<Information />} />
                 <Route path="*" element={<PageNotFound />} />
               </Routes>
             )}

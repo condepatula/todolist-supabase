@@ -4,6 +4,7 @@ import { useOs } from "@mantine/hooks";
 import { X, Check } from "tabler-icons-react";
 import { supabase } from "../api/client";
 import { resizeFile } from "../helpers/utils";
+import { EMAIL_NOT_CONFIRMED } from "../helpers/messages";
 
 const UserContext = createContext();
 
@@ -14,6 +15,8 @@ export function UserProvider(props) {
   const [loading, setLoading] = useState(false);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isImageUploadLoading, setIsImageUploadLoading] = useState(false);
+  const [emailConfirmed, setEmailConfirmed] = useState(true);
+  const [isProfileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     const user = supabase.auth.user();
@@ -21,6 +24,17 @@ export function UserProvider(props) {
       setUser(user);
       getProfile(user);
     }
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (session?.user) {
+          setUser(session.user);
+          getProfile(session.user);
+        }
+      }
+    );
+    return () => {
+      authListener.unsubscribe();
+    };
   }, []);
 
   const signUp = async (data, navigate) => {
@@ -30,16 +44,12 @@ export function UserProvider(props) {
         email: data.email,
         password: data.password,
       });
-      if (error) throw error;
-      showNotification({
-        message: "Account has created!",
-        icon: <Check />,
-        color: "teal",
-      });
-      createProfile(user.id, data.username, data.email);
-      setUser(user);
-      getProfile(user);
-      navigate("/");
+      if (error) {
+        setLoading(false);
+        console.log("signUp", error);
+        return;
+      }
+      createProfile(user, data, navigate);
     } catch (error) {
       showNotification({
         message: error.message,
@@ -51,13 +61,26 @@ export function UserProvider(props) {
     }
   };
 
-  const createProfile = async (id, username, email) => {
+  const createProfile = async (user, data, navigate) => {
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .insert({ id, updated_at: new Date(), username })
-        .single();
-      if (error) throw error;
+      const { error } = await supabase.from("profiles").insert({
+        id: user.id,
+        updated_at: new Date(),
+        username: data.username,
+      });
+      if (error) {
+        setLoading(false);
+        console.log("createProfile", error);
+        return;
+      }
+      showNotification({
+        message: "Account has created!",
+        icon: <Check />,
+        color: "teal",
+      });
+      if (user?.hasOwnProperty("confirmation_sent_at")) {
+        navigate("/information");
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -72,7 +95,14 @@ export function UserProvider(props) {
         email: data.email,
         password: data.password,
       });
-      if (error) throw error;
+      if (error) {
+        console.log("logIn", error);
+        setLoading(false);
+        if (error.message === EMAIL_NOT_CONFIRMED) {
+          setEmailConfirmed(false);
+          navigate("/");
+        }
+      }
       setUser(user);
       getProfile(user);
       navigate("/");
@@ -229,12 +259,16 @@ export function UserProvider(props) {
     account,
     isUpdatingProfile,
     isImageUploadLoading,
+    emailConfirmed,
+    isProfileOpen,
     signUp,
     logIn,
     logOut,
     getProfile,
     handleUpdate,
     handleUploadImage,
+    setUser,
+    setProfileOpen,
   };
 
   return <UserContext.Provider value={value} {...props} />;

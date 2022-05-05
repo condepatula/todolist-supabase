@@ -222,8 +222,8 @@ export function TodolistProvider(props) {
         }
       }
     });
-    if (notDone > 0) color = `${theme.colors.red[2]}`;
-    if (done > 0 && notDone === 0) color = `${theme.colors.green[2]}`;
+    if (notDone > 0) color = `${theme.colors.red[3]}`;
+    if (done > 0 && notDone === 0) color = `${theme.colors.green[3]}`;
     return color;
   };
 

@@ -21,7 +21,7 @@ import { useUser } from "../context/user-context";
 export const User = () => {
   const theme = useMantineTheme();
   const navigate = useNavigate();
-  const { account, logOut } = useUser();
+  const { account, logOut, setProfileOpen } = useUser();
 
   const [username, setUsername] = useState(null);
   const [email, setEmail] = useState(null);
@@ -95,7 +95,10 @@ export const User = () => {
       >
         <Menu.Item
           icon={<Profile size={16} />}
-          onClick={() => navigate("/profile")}
+          onClick={() => {
+            navigate("/profile");
+            setProfileOpen(true);
+          }}
         >
           Profile
         </Menu.Item>

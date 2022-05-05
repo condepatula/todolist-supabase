@@ -16,7 +16,7 @@ export const Actions = () => {
   const matches = useMediaQuery("(min-width:900px)");
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const { openForm, setPayloadAtForm } = useTodolist();
-  const { user } = useUser();
+  const { user, isProfileOpen } = useUser();
 
   return (
     <Group position="apart">
@@ -27,7 +27,7 @@ export const Actions = () => {
       >
         {colorScheme === "dark" ? <Sun size={16} /> : <MoonStars size={16} />}
       </ActionIcon>
-      {user && (
+      {user && !isProfileOpen && (
         <Button
           size="xs"
           onClick={() => {

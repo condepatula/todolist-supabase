@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Box, Text, Group, UnstyledButton } from "@mantine/core";
+import {
+  Box,
+  Text,
+  Group,
+  UnstyledButton,
+  useMantineColorScheme,
+} from "@mantine/core";
 import { Calendar as CalendarM } from "@mantine/dates";
 import { Calendar as CalendarI, Plus, Minus } from "tabler-icons-react";
 import moment from "moment";
@@ -11,6 +17,7 @@ export const Calendar = () => {
   const { setDateFilter, getColorDay } = useTodolist();
   const [value, setValue] = useState(new Date());
   const [visible, setVisible] = useState(false);
+  const { colorScheme } = useMantineColorScheme();
 
   return (
     <Box mb="sm">
@@ -55,9 +62,21 @@ export const Calendar = () => {
             },
           })}
           dayStyle={(date) =>
-            getColorDay(date)
+            getColorDay(date) &&
+            moment(date).format("DD/MM/yyyy") !==
+              moment(value).format("DD/MM/yyyy")
               ? {
                   backgroundColor: `${getColorDay(date)}`,
+                  color:
+                    colorScheme === "dark"
+                      ? moment(new Date()).format("DD/MM/yyyy") !==
+                        moment(date).format("DD/MM/yyyy")
+                        ? "black"
+                        : "white"
+                      : moment(new Date()).format("DD/MM/yyyy") ===
+                        moment(date).format("DD/MM/yyyy")
+                      ? "white"
+                      : null,
                 }
               : null
           }
