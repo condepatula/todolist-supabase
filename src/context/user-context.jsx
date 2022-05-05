@@ -104,6 +104,7 @@ export function UserProvider(props) {
         if (error.message === EMAIL_NOT_CONFIRMED) {
           navigate("/");
         }
+        return;
       }
       setUser(user);
       getProfile(user);
