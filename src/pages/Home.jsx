@@ -6,10 +6,11 @@ import { FormTodo } from "../components/_formTodo";
 import { TodoList } from "../components/_todoList";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useUser } from "../context/user-context";
 
 export const Home = () => {
   const navigate = useNavigate();
-  const user = supabase.auth.user();
+  const { user } = useUser();
 
   useEffect(() => {
     if (!user) {
